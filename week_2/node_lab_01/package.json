@@ -1,0 +1,11 @@
+{
+    "name": "node_lab_01",
+    "version": "1.0.0",
+    "description": "Lab 2 - Raw Node.js HTTP Server",
+    "main": "sever.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "dependencies":{},
+    "devdependencies": {}
+}
