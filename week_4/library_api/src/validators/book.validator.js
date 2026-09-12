@@ -3,6 +3,7 @@ const { GENRES } = require("../models/book.model");
 
 const currentYear = new Date().getFullYear();
 
+// Used for POST. Everything required stays required.
 const createBookSchema = Joi.object({
   title: Joi.string().trim().min(1).max(200).required(),
   author: Joi.string().trim().required(),
@@ -12,6 +13,8 @@ const createBookSchema = Joi.object({
   copiesTotal: Joi.number().integer().min(1),
 });
 
+// Used for PATCH. Everything optional, but copiesAvailable is left out on
+// purpose — clients aren't allowed to set it directly (see README).
 const updateBookSchema = Joi.object({
   title: Joi.string().trim().min(1).max(200),
   author: Joi.string().trim(),

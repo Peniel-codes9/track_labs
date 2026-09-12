@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Book = require("../models/book.model");
 
+// Reusable check for a bad :id, since every route with :id needs it.
 function isValidId(id) {
   return mongoose.Types.ObjectId.isValid(id);
 }
