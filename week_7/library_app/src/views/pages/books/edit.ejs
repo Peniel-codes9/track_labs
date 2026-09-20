@@ -1,0 +1,8 @@
+<h1>Edit book</h1>
+<%- include('../../partials/book-form', {
+  formAction: '/books/' + book._id,
+  submitLabel: 'Save changes',
+  book: book,
+  errors: errors,
+  genres: genres
+}) %>

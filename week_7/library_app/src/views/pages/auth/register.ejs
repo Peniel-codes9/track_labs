@@ -1,0 +1,22 @@
+<h1>Register</h1>
+
+<% if (error) { %>
+  <p class="form-errors"><%= error %></p>
+<% } %>
+
+<form action="/register" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" value="<%= values.name || '' %>" required>
+
+  <label for="email">Email</label>
+  <input type="email" id="email" name="email" value="<%= values.email || '' %>" required>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" required minlength="8">
+
+  <button type="submit">Create account</button>
+</form>
+
+<p>Already have an account? <a href="/login">Log in</a></p>

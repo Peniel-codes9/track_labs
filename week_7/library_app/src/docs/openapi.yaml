@@ -1,0 +1,293 @@
+openapi: 3.0.3
+info:
+  title: Library API
+  version: "1.0.0"
+  description: Library catalogue with session-based auth and role-based access.
+servers:
+  - url: /
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: library.sid
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-CSRF-Token
+
+  schemas:
+    Book:
+      type: object
+      properties:
+        _id: { type: string }
+        title: { type: string }
+        author: { type: string }
+        isbn: { type: string }
+        genre: { type: string }
+        publishedYear: { type: integer }
+        copiesTotal: { type: integer }
+        copiesAvailable: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    User:
+      type: object
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        role: { type: string, enum: [member, librarian] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Session:
+      type: object
+      properties:
+        id: { type: string }
+        current: { type: boolean }
+        expires: { type: string, format: date-time }
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message: { type: string }
+            details:
+              type: array
+              items: { type: string }
+
+paths:
+  /api/books:
+    get:
+      summary: List books
+      parameters:
+        - in: query
+          name: author
+          schema: { type: string }
+        - in: query
+          name: genre
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Book" }
+        "400":
+          description: Invalid genre
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+    post:
+      summary: Create a book (librarian only)
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Book" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Book" }
+        "400": { description: Validation failed, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "401": { description: Not logged in }
+        "403": { description: Not a librarian, or missing CSRF token }
+        "409": { description: Duplicate ISBN }
+
+  /api/books/{id}:
+    get:
+      summary: Get one book
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/Book" } } } }
+        "400": { description: Invalid id }
+        "404": { description: Not found }
+    patch:
+      summary: Update a book (librarian only)
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Book" }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/Book" } } } }
+        "400": { description: Validation failed }
+        "401": { description: Not logged in }
+        "403": { description: Not a librarian, or missing CSRF token }
+        "404": { description: Not found }
+    delete:
+      summary: Delete a book (librarian only)
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Deleted }
+        "401": { description: Not logged in }
+        "403": { description: Not a librarian, or missing CSRF token }
+        "404": { description: Not found }
+
+  /api/auth/register:
+    post:
+      summary: Register a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "201": { description: Created, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "400": { description: Validation failed }
+        "409": { description: Email already registered }
+
+  /api/auth/login:
+    post:
+      summary: Log in and start a session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        "200": { description: Sets the session cookie, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "401": { description: Invalid email or password }
+
+  /api/auth/logout:
+    post:
+      summary: Destroy the current session
+      security:
+        - cookieAuth: []
+      responses:
+        "204": { description: Logged out (idempotent) }
+
+  /api/auth/me:
+    get:
+      summary: Get the caller's own profile
+      security:
+        - cookieAuth: []
+      responses:
+        "200": { description: OK, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "401": { description: Not logged in }
+
+  /api/auth/sessions:
+    get:
+      summary: List the caller's own active sessions
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Session" }
+        "401": { description: Not logged in }
+
+  /api/auth/sessions/others:
+    delete:
+      summary: Revoke every session except the current one
+      security:
+        - cookieAuth: []
+      responses:
+        "204": { description: Revoked }
+        "401": { description: Not logged in }
+
+  /api/csrf-token:
+    get:
+      summary: Issue a CSRF token for the current session
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  csrfToken: { type: string }
+        "401": { description: Not logged in }
+
+  /api/users:
+    get:
+      summary: List users (librarian only)
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/User" }
+        "401": { description: Not logged in }
+        "403": { description: Not a librarian }
+
+  /api/users/{id}/role:
+    patch:
+      summary: Change a user's role (librarian only)
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role: { type: string, enum: [member, librarian] }
+      responses:
+        "200": { description: Updated, content: { application/json: { schema: { $ref: "#/components/schemas/User" } } } }
+        "401": { description: Not logged in }
+        "403": { description: Not a librarian, or missing CSRF token }
+        "404": { description: User not found }
+        "409": { description: Cannot change your own role }
+
+  /health:
+    get:
+      summary: Liveness check
+      responses:
+        "200": { description: Connected }
+        "503": { description: Database not connected }

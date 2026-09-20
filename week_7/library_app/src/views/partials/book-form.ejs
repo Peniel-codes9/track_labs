@@ -1,0 +1,36 @@
+<% if (errors && errors.length) { %>
+  <ul class="form-errors">
+    <% errors.forEach(function (msg) { %>
+      <li><%= msg %></li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<form action="<%= formAction %>" method="POST" class="book-form">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <label for="title">Title</label>
+  <input type="text" id="title" name="title" value="<%= book.title || '' %>" required>
+
+  <label for="author">Author</label>
+  <input type="text" id="author" name="author" value="<%= book.author || '' %>" required>
+
+  <label for="isbn">ISBN</label>
+  <input type="text" id="isbn" name="isbn" value="<%= book.isbn || '' %>" required>
+
+  <label for="genre">Genre</label>
+  <select id="genre" name="genre">
+    <option value="">-- none --</option>
+    <% genres.forEach(function (g) { %>
+      <option value="<%= g %>" <%= book.genre === g ? 'selected' : '' %>><%= g %></option>
+    <% }) %>
+  </select>
+
+  <label for="publishedYear">Published year</label>
+  <input type="number" id="publishedYear" name="publishedYear" value="<%= book.publishedYear || '' %>" required>
+
+  <label for="copiesTotal">Total copies</label>
+  <input type="number" id="copiesTotal" name="copiesTotal" value="<%= book.copiesTotal || 1 %>" min="1">
+
+  <button type="submit"><%= submitLabel %></button>
+</form>

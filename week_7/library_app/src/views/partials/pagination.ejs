@@ -1,0 +1,7 @@
+<% if (totalPages > 1) { %>
+  <nav class="pagination">
+    <% for (let p = 1; p <= totalPages; p++) { %>
+      <a href="?page=<%= p %>" class="<%= p === page ? 'active' : '' %>"><%= p %></a>
+    <% } %>
+  </nav>
+<% } %>

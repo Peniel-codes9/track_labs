@@ -1,0 +1,19 @@
+<h1><%= book.title %></h1>
+<p>by <%= book.author %></p>
+<dl>
+  <dt>ISBN</dt><dd><%= book.isbn %></dd>
+  <dt>Genre</dt><dd><%= book.genre || '—' %></dd>
+  <dt>Published</dt><dd><%= book.publishedYear %></dd>
+  <dt>Copies</dt><dd><%= book.copiesAvailable %> of <%= book.copiesTotal %> available</dd>
+</dl>
+
+<% if (currentUser && currentUser.role === 'librarian') { %>
+  <a href="/books/<%= book._id %>/edit">Edit</a>
+  <form action="/books/<%= book._id %>/delete" method="POST" class="inline-form"
+        onsubmit="return confirm('Delete this book?');">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button type="submit">Delete</button>
+  </form>
+<% } %>
+
+<a href="/">Back to catalogue</a>

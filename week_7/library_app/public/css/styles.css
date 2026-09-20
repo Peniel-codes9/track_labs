@@ -1,0 +1,105 @@
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  color: #222;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.site-header nav a,
+.site-header nav .link-button {
+  margin-left: 1rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #0645ad;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.inline-form {
+  display: inline;
+}
+
+.flash {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.flash-success {
+  background: #e6f4ea;
+  color: #1e7e34;
+}
+
+.form-errors {
+  color: #c0392b;
+}
+
+.book-list {
+  list-style: none;
+  padding: 0;
+}
+
+.book-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.badge {
+  float: right;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.book-form label {
+  display: block;
+  margin-top: 0.75rem;
+}
+
+.book-form input,
+.book-form select {
+  width: 100%;
+  padding: 0.4rem;
+  box-sizing: border-box;
+}
+
+.book-form button,
+form button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.pagination a {
+  margin-right: 0.5rem;
+}
+
+.pagination a.active {
+  font-weight: bold;
+}
+
+.empty-state {
+  color: #666;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 1rem;
+  color: #999;
+  font-size: 0.85rem;
+}
