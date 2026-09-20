@@ -84,13 +84,10 @@ const server = http.createServer(function (req, res) {
     return;
   }
 
-  // A simple file server for anything under /static/
   if (pathName.indexOf("/static/") === 0 && method === "GET") {
     const requestedFile = pathName.replace("/static/", "");
     const filePath = path.join(publicDir, requestedFile);
 
-    // Make sure the file is actually inside the public folder.
-    // Without this check, someone could ask for "/static/../server.js" and read our code.
     if (filePath.indexOf(publicDir) !== 0) {
       res.writeHead(403, { "Content-Type": "text/plain" });
       res.end("Forbidden");
